@@ -37,7 +37,8 @@ lines = []
 graph = {} 
 # represent the graph as a dictionary where the vertices are keys and the value of each vertex is its adjacency list
 # vertices are circle objects (tags included
-# each circle has a tag that stores its center as a 3-tuple (center.x, center.y, color, visited_flag)
+# each circle has a tag that stores its center as a 5-tuple (center.x, center.y, color, visited_flag, blue or red)
+# 0 = not visisted
 
 color_dict = {} # a dicionary used to keep track of colors used
 
@@ -53,7 +54,7 @@ def place_vertex(event):
         center = ((x0+x1)/2.0, (y0+y1)/2.0)
         vertex_centers.append(center)
 
-        tag = (center[0], center[1], "black", False) #the tag for each circle is its center
+        tag = (center[0], center[1], "black", 0, 3) #the tag for each circle is its center
 
         #fill the circle black
         circle = canvas.create_oval(x0, y0, x1, y1, fill = "black", tags = tag)
@@ -104,7 +105,8 @@ def draw_edge(event):
                 #CANNOT CREATE AN EDGE BETWEEN TWO VERTICES LABELED THE SAME COLOR WHEN IN color_mode
                 edge_vertices.append(second_to_last)
                 edge_vertices.append(last)
-            else:
+            elif (second_to_last not in graph[last] and last not in graph[second_to_last]):
+                #prevent multiple edges between the same pair of vertices
                 graph[last].append(second_to_last)
                 graph[second_to_last].append(last)
 
@@ -269,6 +271,7 @@ pink_bool = tk.IntVar()
 check_coloring_bool = tk.IntVar()
 count_colors_bool = tk.IntVar()
 is_bipartite_bool = tk.IntVar()
+draw_bipartite_bool = tk.IntVar()
 
 def count_colors():
     if (count_colors_bool.get() == 1):
@@ -382,18 +385,120 @@ def color_mode():
         
 def is_bipartite():
     if (is_bipartite_bool):
-        if (len(color_dict) == 0 or len(color_dict) == 1):
+        if (len(circles) == 0 or len(circles) == 1):
             top = Toplevel(window)
-            top.geometry("300x200")
+            top.geometry("400x200")
             top.title("NOT BIPARTITE")
             Label(top, text = "The graph is not bipartite because a bipartite graph \n must have at least 2 vertices according to the textbook").place(x=50, y=80)
         else:
-            top = Toplevel(window)
-            top.geometry("300x200")
-            top.title("The graph is not bipartite because it is empty")
-            Label(top, text = "The graph is not bipartite because it is empty").place(x=50, y=80)
-        #run BFS
-        start_circle = 
+            #set all visited flags to false
+            for circle in circles:
+                for neighbor in graph[circle]:
+                    neighbor_tags = canvas.gettags(neighbor)
+                    new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, neighbor_tags[4])
+                    canvas.itemconfig(neighbor, tag = new_tag_all)
+
+            #run BFS at an arbitary vertex
+            start_circle = circles[0]
+            start_circle_tags = canvas.gettags(start_circle)
+            new_tag = (start_circle_tags[0], start_circle_tags[1], start_circle_tags[2], 1, 0) #start is colored 0 by default
+            canvas.itemconfig(start_circle, tag = new_tag)
+
+            layer_arr = [[]]
+
+            #current_layer = [start_circle]
+            layer_arr[0].append(start_circle)
+
+            layer_counter = 0
+            unsuccessful = 0
+            
+            while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
+                for node in layer_arr[layer_counter]:
+                    current_node_tags = canvas.gettags(node)
+                    current_color = current_node_tags[4]
+
+                    first = 0
+                    for neighbor in graph[node]:
+                        neighbor_tags = canvas.gettags(neighbor)
+                        neighbor_visited = int(neighbor_tags[3])
+                        neighbor_color = neighbor_tags[4]
+
+                        if (neighbor_visited == 0): 
+                            new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 1, (layer_counter+1)%2)
+                            canvas.itemconfig(neighbor, tag = new_neighbor_tag)
+                            if (first == 0):
+                                layer_arr.append([])
+                                first == 1
+                            layer_arr[layer_counter+1].append(neighbor)
+                        else:
+                            if (neighbor_color == current_color):
+                                unsuccessful = 1
+                                break        
+                    if unsuccessful:
+                        break
+
+                layer_counter += 1
+
+                if unsuccessful:
+                    break
+            
+            if unsuccessful:            
+                top = Toplevel(window)
+                top.geometry("400x200")
+                top.title("NOT BIPARTITE")
+                Label(top, text = "The graph is not bipartite because BFS cannot \n be used to assign colors to its vertices").place(x=50, y=80)
+                return -1
+            else:
+                top = Toplevel(window)
+                top.geometry("400x200")
+                top.title("BIPARTITE")
+                Label(top, text = "The graph is bipartite because BFS can \n be used to assign colors to its vertices").place(x=50, y=80)
+        
+def draw_bipartite():
+    if (draw_bipartite_bool):
+        if (is_bipartite() != -1):
+            for circle in circles:
+                for neighbor in graph[circle]:
+                    neighbor_tags = canvas.gettags(neighbor)
+                    new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, neighbor_tags[4])
+                    canvas.itemconfig(neighbor, fill = "black", tag = new_tag_all)
+
+            #run BFS at an arbitary vertex
+            start_circle = circles[0]
+            start_circle_tags = canvas.gettags(start_circle)
+            new_tag = (start_circle_tags[0], start_circle_tags[1], "red", 1, 0) #start is colored 0 by default
+            canvas.itemconfig(start_circle, fill = "red", tag = new_tag)
+
+            layer_arr = [[]]
+
+            #current_layer = [start_circle]
+            layer_arr[0].append(start_circle)
+
+            layer_counter = 0
+            
+            while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
+                for node in layer_arr[layer_counter]:
+                    current_node_tags = canvas.gettags(node)
+
+                    first = 0
+                    for neighbor in graph[node]:
+                        neighbor_tags = canvas.gettags(neighbor)
+                        neighbor_visited = int(neighbor_tags[3])
+
+                        if (neighbor_visited == 0): 
+                            new_color = "red"
+                            if layer_counter % 2 == 0:
+                                new_color = "blue"
+
+                            new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], new_color, 1, (layer_counter+1)%2)
+                            canvas.itemconfig(neighbor, fill = new_color, tag = new_neighbor_tag)
+                            if (first == 0):
+                                layer_arr.append([])
+                                first == 1
+                            layer_arr[layer_counter+1].append(neighbor)
+                
+                layer_counter += 1
+            
 
 
 vertexCheckButton = Checkbutton(frame, text='Vertex mode: hold control (on mac) and left click to place a vertex', command=place_vertex_or_edge, variable=vertex_bool)
@@ -435,6 +540,8 @@ count_colors_button.pack(side = BOTTOM)
 is_bipartite_button = Checkbutton(frame, text='Click to check if the graph is bipartite', command=is_bipartite, variable=is_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
 
+is_bipartite_button = Checkbutton(frame, text='Click to see the bipartite coloring for the bipartite graph drawn', command=draw_bipartite, variable=draw_bipartite_bool)
+is_bipartite_button.pack(side = BOTTOM)
 
 window.bind(place_vertex_or_edge)
 
