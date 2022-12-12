@@ -31,7 +31,7 @@ radius = 10
 
 vertex_centers = []
 circles = []
-edge_vertices = []
+edge_circles = []
 lines = []
 
 graph = {} 
@@ -46,6 +46,67 @@ color_dict = {} # a dicionary used to keep track of colors used
 def place_vertex(event):
 
     if (vertex_bool.get() == 1 and edge_bool.get() == 0):
+        fill_color = "black" # placeholder
+
+        keys = color_dict.keys()
+
+        if (red_bool.get() == 1 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "red"
+            if ("red" not in keys):
+                color_dict["red"] = 1
+            else:
+                color_dict["red"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 1 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "blue"
+            if ("blue" not in keys):
+                color_dict["blue"] = 1
+            else:
+                color_dict["blue"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 1 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "green"
+            if ("green" not in keys):
+                color_dict["green"] = 1
+            else:
+                color_dict["green"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 1 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "yellow"
+            if ("yellow" not in keys):
+                color_dict["yellow"] = 1
+            else:
+                color_dict["yellow"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 1 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "black"
+            if ("black" not in keys):
+                color_dict["black"] = 1
+            else:
+                color_dict["black"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 1 and pink_bool.get() == 0):
+            fill_color = "purple"
+            if ("purple" not in keys):
+                color_dict["purple"] = 1
+            else:
+                color_dict["purple"] += 1
+
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 1):
+            fill_color = "pink"
+            if ("pink" not in keys):
+                color_dict["pink"] = 1
+            else:
+                color_dict["pink"] += 1
+
+        #default color is black
+        if (red_bool.get() == 0 and blue_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
+            fill_color = "black"
+            if ("black" not in keys):
+                color_dict["black"] = 1
+            else:
+                color_dict["black"] += 1
+
         # x increases from left to right
         # y increases from up to down
         x0 = event.x - radius
@@ -58,12 +119,7 @@ def place_vertex(event):
         tag = (center[0], center[1], "black", 0, 3) #the tag for each circle is its center
 
         #fill the circle black
-        circle = canvas.create_oval(x0, y0, x1, y1, fill = "black", tags = tag)
-
-        if ("black" not in color_dict):
-            color_dict["black"] = 1
-        else:
-            color_dict["black"] += 1
+        circle = canvas.create_oval(x0, y0, x1, y1, fill = fill_color, tags = tag)
 
         circles.append(circle)
 
@@ -93,24 +149,25 @@ def draw_edge(event):
     if (vertex_bool.get() == 0 and edge_bool.get() == 1):
         circle_clicked_on = click_on_vert(event.x, event.y)
         if (circle_clicked_on != 0):
-            edge_vertices.append(circle_clicked_on)
+            edge_circles.append(circle_clicked_on)
 
-        if (len(edge_vertices) > 0 and len(edge_vertices)%2 == 0):
-            last = edge_vertices.pop() # a circle object
-            second_to_last = edge_vertices.pop()
+        if (len(edge_circles) > 0 and len(edge_circles)%2 == 0):
+            last = edge_circles.pop() # a circle object
+            second_to_last = edge_circles.pop()
 
             last_tags = canvas.gettags(last)
             second_to_last_tags = canvas.gettags(second_to_last)
 
             if (last_tags[2] == second_to_last_tags[2] and no_edge_bt_same_color_vertices.get() == 1):
                 #CANNOT CREATE AN EDGE BETWEEN TWO VERTICES LABELED THE SAME COLOR WHEN IN color_mode
-                edge_vertices.append(second_to_last)
-                edge_vertices.append(last)
+                edge_circles.append(second_to_last)
+                edge_circles.append(last)
             elif (second_to_last not in graph[last] and last not in graph[second_to_last]):
                 #prevent multiple edges between the same pair of vertices
                 graph[last].append(second_to_last)
                 graph[second_to_last].append(last)
 
+                #x0, y0, x1, y1
                 tag = (last_tags[0], last_tags[1], second_to_last_tags[0], second_to_last_tags[1])
                 line = canvas.create_line(last_tags[0], last_tags[1], second_to_last_tags[0], second_to_last_tags[1], tags = tag)
                 lines.append(line)
@@ -273,6 +330,7 @@ check_coloring_bool = tk.IntVar()
 count_colors_bool = tk.IntVar()
 is_bipartite_bool = tk.IntVar()
 draw_bipartite_bool = tk.IntVar()
+delete_vertex_bool = tk.IntVar()
 
 def count_colors():
     if (count_colors_bool.get() == 1):
@@ -587,48 +645,83 @@ def draw_bipartite():
                         layer_counter += 1
             #"""
 
+def del_vert(event):
+    if (delete_vertex_bool):
+            circ = click_on_vert(event.x, event.y)
+            if (circ != 0):
+                for circle in circles: 
+                    if circ in graph[circle]:
+                        graph[circle].remove(circ)
+                circles.remove(circ)
+                
+                circ_tags = canvas.gettags(circ)
+                circ_col = circ_tags[2]
+                color_dict[str(circ_col)] -= 1
+                canvas.delete(circ)
 
-vertexCheckButton = Checkbutton(frame, text='Vertex mode: hold control (on mac) and left click to place a vertex', command=place_vertex_or_edge, variable=vertex_bool)
+                #x0, y0, x1, y1
+                lines_to_remove = []
+                for line in lines:
+                    line_tag = canvas.gettags(line)
+
+                    if (abs((float(circ_tags[0]) - float(line_tag[0])) < .01 and abs((float(circ_tags[1]) - float(line_tag[1])) < .01)) or abs((float(circ_tags[0]) - float(line_tag[2])) < .01 and abs((float(circ_tags[1]) - float(line_tag[3])) < .01))):
+                        lines_to_remove.append(line)
+                        canvas.delete(line)
+                
+                for line in lines_to_remove:
+                    lines.remove(line)
+                    print("Test")
+
+
+def delete_vertex():
+    if (delete_vertex_bool):
+        window.bind('<Control-Button-1>', del_vert)
+
+
+vertexCheckButton = Checkbutton(frame, text='VERTEX mode: hold control (on mac) and left click to place a vertex', command=place_vertex_or_edge, variable=vertex_bool)
 vertexCheckButton.pack(side = BOTTOM)
 
-edgeCheckButton = Checkbutton(frame, text='Edge mode: hold control (on mac) and left click on two vertices to place an edge between them', command=place_vertex_or_edge, variable=edge_bool)
+edgeCheckButton = Checkbutton(frame, text='EDGE mode: hold control (on mac) and left click on two vertices to place an edge between them', command=place_vertex_or_edge, variable=edge_bool)
 edgeCheckButton.pack(side = BOTTOM)
 
 colorCheckButton = Checkbutton(frame, text='Turn on to not allow edges between vertices that are the same color', command=color_mode, variable=no_edge_bt_same_color_vertices)
 colorCheckButton.pack(side = BOTTOM)
 
-redCheckbutton = Checkbutton(frame, text='Red: left click a vertex to color it red', command=color_mode, variable=red_bool, fg = "red")
+redCheckbutton = Checkbutton(frame, text='RED: left click a vertex to color it red', command=color_mode, variable=red_bool, fg = "red")
 redCheckbutton.pack(side = BOTTOM)
 
-blueCheckbutton = Checkbutton(frame, text='Blue: left click a vertex to color it blue', command=color_mode, variable=blue_bool, fg = "blue")
+blueCheckbutton = Checkbutton(frame, text='BLUE: left click a vertex to color it blue', command=color_mode, variable=blue_bool, fg = "blue")
 blueCheckbutton.pack(side = BOTTOM)
 
-greenCheckbutton = Checkbutton(frame, text='Green: left click a vertex to color it green', command=color_mode, variable=green_bool, fg = "green")
+greenCheckbutton = Checkbutton(frame, text='GREEN: left click a vertex to color it green', command=color_mode, variable=green_bool, fg = "green")
 greenCheckbutton.pack(side = BOTTOM)
 
-yellowCheckbutton = Checkbutton(frame, text='Yellow: left click a vertex to color it yellow', command=color_mode, variable=yellow_bool, fg = "yellow")
+yellowCheckbutton = Checkbutton(frame, text='YELLOW: left click a vertex to color it yellow', command=color_mode, variable=yellow_bool, fg = "yellow")
 yellowCheckbutton.pack(side = BOTTOM)
 
-blackCheckbutton = Checkbutton(frame, text='Black: left click a vertex to color it black', command=color_mode, variable=black_bool, fg = "black")
+blackCheckbutton = Checkbutton(frame, text='BLACK: left click a vertex to color it black', command=color_mode, variable=black_bool, fg = "black")
 blackCheckbutton.pack(side = BOTTOM)
 
-purpleCheckbutton = Checkbutton(frame, text='Purple: left click a vertex to color it purple', command=color_mode, variable=purple_bool, fg = "purple")
+purpleCheckbutton = Checkbutton(frame, text='PURPLE: left click a vertex to color it purple', command=color_mode, variable=purple_bool, fg = "purple")
 purpleCheckbutton.pack(side = BOTTOM)
 
-pinkCheckbutton = Checkbutton(frame, text='Pink: left click a vertex to color it pink', command=color_mode, variable=pink_bool, fg = "pink")
+pinkCheckbutton = Checkbutton(frame, text='PINK: left click a vertex to color it pink', command=color_mode, variable=pink_bool, fg = "pink")
 pinkCheckbutton.pack(side = BOTTOM)
 
-check_vertex_coloring_button = Checkbutton(frame, text='Click to check if the vertex coloring is valid', command=check_coloring, variable=check_coloring_bool)
+check_vertex_coloring_button = Checkbutton(frame, text='Click to check if the VERTEX COLORING is VALID', command=check_coloring, variable=check_coloring_bool)
 check_vertex_coloring_button.pack(side = BOTTOM)
 
-count_colors_button = Checkbutton(frame, text='Click to get the number of colors used', command=count_colors, variable=count_colors_bool)
+count_colors_button = Checkbutton(frame, text='Click to get the NUMBER of colors used', command=count_colors, variable=count_colors_bool)
 count_colors_button.pack(side = BOTTOM)
 
-is_bipartite_button = Checkbutton(frame, text='Click to check if the graph is bipartite', command=is_bipartite, variable=is_bipartite_bool)
+is_bipartite_button = Checkbutton(frame, text='Click to check if the graph is BIPARTITE', command=is_bipartite, variable=is_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
 
-is_bipartite_button = Checkbutton(frame, text='Click to see the bipartite coloring for the bipartite graph drawn', command=draw_bipartite, variable=draw_bipartite_bool)
+is_bipartite_button = Checkbutton(frame, text='Click to see the BIPARTITE coloring for the BIPARTITE graph drawn', command=draw_bipartite, variable=draw_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
+
+delete_vertex_button = Checkbutton(frame, text='Click to be able to DELETE a vertex and edges incident to it \n by holding control and left-clicking on them', command=delete_vertex, variable=delete_vertex_bool)
+delete_vertex_button.pack(side = BOTTOM)
 
 window.bind(place_vertex_or_edge)
 
