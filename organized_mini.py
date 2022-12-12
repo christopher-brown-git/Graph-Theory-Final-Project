@@ -39,6 +39,7 @@ graph = {}
 # vertices are circle objects (tags included
 # each circle has a tag that stores its center as a 5-tuple (center.x, center.y, color, visited_flag, blue or red)
 # 0 = not visisted
+# tag[4] is 3 by default
 
 color_dict = {} # a dicionary used to keep track of colors used
 
@@ -276,8 +277,13 @@ draw_bipartite_bool = tk.IntVar()
 def count_colors():
     if (count_colors_bool.get() == 1):
         print("test")
-        num_colors = str(len(color_dict))
-        total =  "The number of colors used is: " + num_colors
+
+        num_colors = 0
+        for col in color_dict.keys():
+            if color_dict[col] != 0:
+                num_colors += 1
+        
+        total =  "The number of colors used is: " + str(num_colors)
 
         if "red" not in color_dict:
             total += "\n There are 0 red vertices"
@@ -391,12 +397,14 @@ def is_bipartite():
             top.title("NOT BIPARTITE")
             Label(top, text = "The graph is not bipartite because a bipartite graph \n must have at least 2 vertices according to the textbook").place(x=50, y=80)
         else:
-            #set all visited flags to false
+            #set all visited flags (tag[3]) to false
+            #set all tag[4] to 3
             for circle in circles:
-                for neighbor in graph[circle]:
-                    neighbor_tags = canvas.gettags(neighbor)
-                    new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, neighbor_tags[4])
-                    canvas.itemconfig(neighbor, tag = new_tag_all)
+                if len(graph[circle]) != 0:
+                    for neighbor in graph[circle]:
+                        neighbor_tags = canvas.gettags(neighbor)
+                        new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, 3)
+                        canvas.itemconfig(neighbor, tag = new_tag_all)
 
             #run BFS at an arbitary vertex
             start_circle = circles[0]
@@ -418,22 +426,23 @@ def is_bipartite():
                     current_color = current_node_tags[4]
 
                     first = 0
-                    for neighbor in graph[node]:
-                        neighbor_tags = canvas.gettags(neighbor)
-                        neighbor_visited = int(neighbor_tags[3])
-                        neighbor_color = neighbor_tags[4]
+                    if (len(graph[node]) != 0):
+                        for neighbor in graph[node]:
+                            neighbor_tags = canvas.gettags(neighbor)
+                            neighbor_visited = int(neighbor_tags[3])
+                            neighbor_color = neighbor_tags[4]
 
-                        if (neighbor_visited == 0): 
-                            new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 1, (layer_counter+1)%2)
-                            canvas.itemconfig(neighbor, tag = new_neighbor_tag)
-                            if (first == 0):
-                                layer_arr.append([])
-                                first == 1
-                            layer_arr[layer_counter+1].append(neighbor)
-                        else:
-                            if (neighbor_color == current_color):
-                                unsuccessful = 1
-                                break        
+                            if (neighbor_visited == 0): 
+                                new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 1, (layer_counter+1)%2)
+                                canvas.itemconfig(neighbor, tag = new_neighbor_tag)
+                                if (first == 0):
+                                    layer_arr.append([])
+                                    first == 1
+                                layer_arr[layer_counter+1].append(neighbor)
+                            else:
+                                if (neighbor_color == current_color):
+                                    unsuccessful = 1
+                                    break        
                     if unsuccessful:
                         break
 
@@ -460,44 +469,82 @@ def draw_bipartite():
             for circle in circles:
                 for neighbor in graph[circle]:
                     neighbor_tags = canvas.gettags(neighbor)
-                    new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, neighbor_tags[4])
+                    #0 is not visisted
+                    #tag[4] is 3 by default
+                    new_tag_all = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 0, 3)
                     canvas.itemconfig(neighbor, fill = "black", tag = new_tag_all)
 
-            #run BFS at an arbitary vertex
-            start_circle = circles[0]
-            start_circle_tags = canvas.gettags(start_circle)
-            new_tag = (start_circle_tags[0], start_circle_tags[1], "red", 1, 0) #start is colored 0 by default
-            canvas.itemconfig(start_circle, fill = "red", tag = new_tag)
+            #adjust counts
+            color_dict["black"] = 0
+            color_dict["red"] = 0
+            color_dict["blue"] = 0
 
-            layer_arr = [[]]
+            #nodes with degree 0 get colored red by default
+            num_degree_0 = 0
 
-            #current_layer = [start_circle]
-            layer_arr[0].append(start_circle)
+            for circle in circles:
+                if len(graph[circle]) == 0:
+                    #1 is for visited
+                    #-1 for degree 0 
+                    new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], "red", 1, -1)
+                    canvas.itemconfig(neighbor, fill = "red", tag = new_neighbor_tag)
+                    color_dict["red"] += 1
+                    num_degree_0 += 1
 
-            layer_counter = 0
-            
-            while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
-                for node in layer_arr[layer_counter]:
-                    current_node_tags = canvas.gettags(node)
+            #run BFS a BFS at each connected component
+            num_visited = 0
 
-                    first = 0
-                    for neighbor in graph[node]:
-                        neighbor_tags = canvas.gettags(neighbor)
-                        neighbor_visited = int(neighbor_tags[3])
-
-                        if (neighbor_visited == 0): 
-                            new_color = "red"
-                            if layer_counter % 2 == 0:
-                                new_color = "blue"
-
-                            new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], new_color, 1, (layer_counter+1)%2)
-                            canvas.itemconfig(neighbor, fill = new_color, tag = new_neighbor_tag)
-                            if (first == 0):
-                                layer_arr.append([])
-                                first == 1
-                            layer_arr[layer_counter+1].append(neighbor)
+            while num_visited <= len(circles)-num_degree_0: 
+                start_circle = circles[0] # placeholder 
                 
-                layer_counter += 1
+                found = 0
+                for circle in circles:
+                    start_circle_tags = canvas.gettags(circle)
+                    if (len(graph[circle]) != 0 and int(start_circle_tags[3]) != 1):
+                        start_circle = circle
+                        new_tag = (start_circle_tags[0], start_circle_tags[1], "red", 1, 0) #start is colored 0 by default
+                        canvas.itemconfig(start_circle, fill = "red", tag = new_tag)
+                        color_dict["red"] += 1
+                        num_visited += 1
+                        found = 1
+                        break
+
+                if found == 1:
+
+                    layer_arr = [[]]
+
+                    #current_layer = [start_circle]
+                    layer_arr[0].append(start_circle)
+
+                    layer_counter = 0
+
+                    while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
+                        for node in layer_arr[layer_counter]:
+                            current_node_tags = canvas.gettags(node)
+
+                            first = 0
+                            if (len(graph[node]) != 0):
+                                for neighbor in graph[node]:
+                                    neighbor_tags = canvas.gettags(neighbor)
+                                    neighbor_visited = int(neighbor_tags[3])
+
+                                    if (neighbor_visited == 0): 
+                                        num_visited += 1
+                                        if layer_counter % 2 == 0:
+                                            new_color = "blue"
+                                            color_dict["blue"] += 1
+                                        else:
+                                            new_color = "red"
+                                            color_dict["red"] += 1
+
+                                        new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], new_color, 1, (layer_counter+1)%2)
+                                        canvas.itemconfig(neighbor, fill = new_color, tag = new_neighbor_tag)
+                                        if (first == 0):
+                                            layer_arr.append([])
+                                            first == 1
+                                        layer_arr[layer_counter+1].append(neighbor)
+                        
+                        layer_counter += 1
             
 
 
