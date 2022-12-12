@@ -645,6 +645,12 @@ def draw_bipartite():
                         layer_counter += 1
             #"""
 
+def ISEQUAL(x, y):
+    if (abs(float(x)-float(y)) < .000001):
+        return 1
+    else:
+        return 0
+
 def del_vert(event):
     if (delete_vertex_bool):
             circ = click_on_vert(event.x, event.y)
@@ -652,25 +658,28 @@ def del_vert(event):
                 for circle in circles: 
                     if circ in graph[circle]:
                         graph[circle].remove(circ)
-                circles.remove(circ)
                 
                 circ_tags = canvas.gettags(circ)
+
                 circ_col = circ_tags[2]
                 color_dict[str(circ_col)] -= 1
-                canvas.delete(circ)
 
                 #x0, y0, x1, y1
                 lines_to_remove = []
                 for line in lines:
                     line_tag = canvas.gettags(line)
 
-                    if (abs((float(circ_tags[0]) - float(line_tag[0])) < .01 and abs((float(circ_tags[1]) - float(line_tag[1])) < .01)) or abs((float(circ_tags[0]) - float(line_tag[2])) < .01 and abs((float(circ_tags[1]) - float(line_tag[3])) < .01))):
+                    if (float(circ_tags[0]) == float(line_tag[0]) and float(circ_tags[1]) == float(line_tag[1])) or (float(circ_tags[0]) == float(line_tag[2]) and float(circ_tags[1]) == float(line_tag[3])):
                         lines_to_remove.append(line)
-                        canvas.delete(line)
                 
                 for line in lines_to_remove:
-                    lines.remove(line)
-                    print("Test")
+                    line_tag = canvas.gettags(line)
+                    if (float(circ_tags[0]) == float(line_tag[0]) and float(circ_tags[1]) == float(line_tag[1])) or (float(circ_tags[0]) == float(line_tag[2]) and float(circ_tags[1]) == float(line_tag[3])):
+                        lines.remove(line)
+                        canvas.delete(line)
+
+                canvas.delete(circ)
+                circles.remove(circ)
 
 
 def delete_vertex():
