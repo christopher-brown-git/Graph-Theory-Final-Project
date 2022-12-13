@@ -116,7 +116,7 @@ def place_vertex(event):
         center = ((x0+x1)/2.0, (y0+y1)/2.0)
         vertex_centers.append(center)
 
-        tag = (center[0], center[1], "black", 0, 3) #the tag for each circle is its center
+        tag = (center[0], center[1], fill_color, 0, 3) #the tag for each circle is its center
 
         #fill the circle black
         circle = canvas.create_oval(x0, y0, x1, y1, fill = fill_color, tags = tag)
@@ -334,7 +334,6 @@ delete_vertex_bool = tk.IntVar()
 
 def count_colors():
     if (count_colors_bool.get() == 1):
-        print("test")
 
         num_colors = 0
         for col in color_dict.keys():
@@ -568,9 +567,13 @@ def draw_bipartite():
                     canvas.itemconfig(neighbor, fill = "black", tag = new_tag_all)
 
             #adjust counts
-            color_dict["black"] = 0
+            for key in color_dict.keys():
+                color_dict[key] = 0
+
             color_dict["red"] = 0
             color_dict["blue"] = 0
+            color_dict["black"] = 0
+
 
             #nodes with degree 0 get colored red by default
             num_degree_0 = 0
