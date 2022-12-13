@@ -331,6 +331,7 @@ count_colors_bool = tk.IntVar()
 is_bipartite_bool = tk.IntVar()
 draw_bipartite_bool = tk.IntVar()
 delete_vertex_bool = tk.IntVar()
+delete_edge_bool = tk.IntVar()
 
 def count_colors():
     if (count_colors_bool.get() == 1):
@@ -385,10 +386,10 @@ def count_colors():
 def check_coloring():
     if (check_coloring_bool.get() == 1):
         find = False
-        for circle_key in graph.keys():
-            tag1 = canvas.gettags(circle_key)
+        for circle in circles:
+            tag1 = canvas.gettags(circle)
             color1 = tag1[2]
-            for adjacent_circle in graph[circle_key]:
+            for adjacent_circle in graph[circle]:
                 tag2 = canvas.gettags(adjacent_circle)
                 color2 = tag2[2]
                 if (color1 == color2):
@@ -690,7 +691,7 @@ def delete_vertex():
         window.bind('<Control-Button-1>', del_vert)
 
 
-vertexCheckButton = Checkbutton(frame, text='VERTEX mode: hold control (on mac) and left click to place a vertex', command=place_vertex_or_edge, variable=vertex_bool)
+vertexCheckButton = Checkbutton(frame, text='VERTEX mode: hold control (on mac) and left click to place a vertex. \nIf a color is also checked when doing this, a vertex of the given color will be placed', command=place_vertex_or_edge, variable=vertex_bool)
 vertexCheckButton.pack(side = BOTTOM)
 
 edgeCheckButton = Checkbutton(frame, text='EDGE mode: hold control (on mac) and left click on two vertices to place an edge between them', command=place_vertex_or_edge, variable=edge_bool)
@@ -723,7 +724,7 @@ pinkCheckbutton.pack(side = BOTTOM)
 check_vertex_coloring_button = Checkbutton(frame, text='Click to check if the VERTEX COLORING is VALID', command=check_coloring, variable=check_coloring_bool)
 check_vertex_coloring_button.pack(side = BOTTOM)
 
-count_colors_button = Checkbutton(frame, text='Click to get the NUMBER of colors used', command=count_colors, variable=count_colors_bool)
+count_colors_button = Checkbutton(frame, text='Click to get a numerical breakdown of the colors used in the graph', command=count_colors, variable=count_colors_bool)
 count_colors_button.pack(side = BOTTOM)
 
 is_bipartite_button = Checkbutton(frame, text='Click to check if the graph is BIPARTITE', command=is_bipartite, variable=is_bipartite_bool)
@@ -732,7 +733,7 @@ is_bipartite_button.pack(side = BOTTOM)
 is_bipartite_button = Checkbutton(frame, text='Click to see the BIPARTITE coloring for the BIPARTITE graph drawn', command=draw_bipartite, variable=draw_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
 
-delete_vertex_button = Checkbutton(frame, text='Click to be able to DELETE a vertex and edges incident to it \n by holding control and left-clicking on them', command=delete_vertex, variable=delete_vertex_bool)
+delete_vertex_button = Checkbutton(frame, text='Click to be able to DELETE a vertex and the edges incident to it \n by holding control and left-clicking on the vertices', command=delete_vertex, variable=delete_vertex_bool)
 delete_vertex_button.pack(side = BOTTOM)
 
 window.bind(place_vertex_or_edge)
