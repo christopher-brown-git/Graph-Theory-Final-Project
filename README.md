@@ -1,5 +1,5 @@
 # graphTheoryProject
-Set-up:
+**Set-up:**
 
 I installed Python3 and Tkinter using this website, which uses homebrew: https://www.pythonguis.com/installation/install-tkinter-mac/ 
 homebrew is a package management system that makes installing python3 and Tkinter very easy (just one line commands)
