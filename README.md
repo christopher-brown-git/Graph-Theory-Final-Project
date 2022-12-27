@@ -34,3 +34,4 @@ To run the executable, type `python3 organized_mini.py`
 * Get the number of vertices of each color that are on the screen at a given moment
 * Delete a vertex and all edges incident to it
 
+My interface uses an adjacency list representation of a graph. It implements this with a dictionary. 
