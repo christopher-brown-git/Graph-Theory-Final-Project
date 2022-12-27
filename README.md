@@ -21,7 +21,7 @@ cd ~/Desktop/graphTheoryProject
 
 To run the executable, type “python3 organized_mini.py”
 
-My executable allows the user to do the following:
+**My executable allows the user to do the following:**
 
 * Place vertices of a given color on the screen. The possible colors are pink, purple, black, yellow, green, blue, and red
 * Change the color of vertices on the screen
