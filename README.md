@@ -10,7 +10,7 @@ Installing Tkinter took about 5 minutes
 
 Here are the 3 steps required to install the packages needed to run my executable, as explain on the two websites linked above: 
 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" 
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 brew install python3
 brew install tkinter
 
