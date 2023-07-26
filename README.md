@@ -4,7 +4,7 @@
 I installed Python3 and Tkinter using this website, which uses homebrew: https://www.pythonguis.com/installation/install-tkinter-mac/ 
 homebrew is a package management system that makes installing python3 and Tkinter very easy (just one line commands)
 
-Here is a link the explains how to install homebrew: https://brew.sh/ 
+Here is a link that explains how to install homebrew: https://brew.sh/ 
 
 Installing Tkinter took about 5 minutes
 
