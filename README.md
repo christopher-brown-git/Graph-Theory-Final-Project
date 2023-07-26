@@ -35,3 +35,6 @@ To run the executable, type `python3 organized_mini.py`
 * Delete a vertex and all edges incident to it
 
 My interface uses an adjacency list representation of a graph. It implements this with a dictionary. 
+
+<img width="611" alt="graph_theory_project_screenshot" src="https://github.com/cb123450/graphTheoryProject/assets/91232059/783f75ba-15dc-4deb-930c-ddb781e6bd14">
+
