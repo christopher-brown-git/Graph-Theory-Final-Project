@@ -11,7 +11,7 @@
 * Get the number of vertices of each color that are on the screen at a given moment
 * Delete a vertex and all edges incident to it
 
-My interface uses an adjacency list representation of a graph. It implements this with a dictionary. 
+My interface uses an adjacency list representation of a graph. It implements it with a dictionary. 
 
 **Set-up:**
 
