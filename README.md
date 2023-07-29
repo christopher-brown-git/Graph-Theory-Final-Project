@@ -1,4 +1,4 @@
-# graphTheoryProject
+# Graph Theory Final Project
 **My executable allows the user to do the following:**
 
 * Place vertices of a given color on the screen. The possible colors are pink, purple, black, yellow, green, blue, and red
