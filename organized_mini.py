@@ -290,15 +290,15 @@ def is_bipartite():
                     layer_arr[0].append(start_circle)
 
                     layer_counter = 0
-                    
                     row = []
-                    
-                    while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
-                        for node in layer_arr[layer_counter]:
+                    row.append(start_circle)
+
+                    while len(row) != 0:
+                        new_row = []
+                        for node in row:
                             current_node_tags = canvas.gettags(node)
                             current_color = current_node_tags[4]
 
-                            first = 0
                             if (len(graph[node]) != 0):
                                 for neighbor in graph[node]:
                                     neighbor_tags = canvas.gettags(neighbor)
@@ -309,17 +309,17 @@ def is_bipartite():
                                         num_visited += 1 
                                         new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], neighbor_tags[2], 1, (layer_counter+1)%2)
                                         canvas.itemconfig(neighbor, tag = new_neighbor_tag)
-                                        if (first == 0):
-                                            layer_arr.append([])
-                                            first = 1
-                                        layer_arr[layer_counter+1].append(neighbor)
+ 
+                                        new_row.append(neighbor)
                                     else:
+                                        #default color is 3
                                         if (neighbor_color == current_color):
                                             unsuccessful = 1
                                             break        
                             if unsuccessful:
                                 break
-
+                        
+                        row = new_row
                         layer_counter += 1
 
                         if unsuccessful:
@@ -384,7 +384,7 @@ def draw_bipartite():
                 for circle in circles:
                     start_circle_tags = canvas.gettags(circle)
                     if (len(graph[circle]) != 0 and int(start_circle_tags[3]) != 1):
-                        # if has no neighbors and has not been visited yet
+                        # if has neighbors and has not been visited yet
                         start_circle = circle
                         new_tag = (start_circle_tags[0], start_circle_tags[1], "red", 1, 0) #start is colored 0 by default
                         canvas.itemconfig(start_circle, fill = "red", tag = new_tag)
