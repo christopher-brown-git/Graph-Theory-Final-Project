@@ -56,23 +56,22 @@ def place_vertex(event):
 
         index = 6 #color black by default
         fill_color = "BLACK"
-
+        
+        _sum = 0
         for i, c in enumerate(curr_colors):
-            if c.get() == 1:
+            val = c.get()
+            _sum += val
+            if val == 1:
                 index = i
 
-        _sum = 0
-        for intVar in curr_colors:
-            _sum += intVar.get()
-
-        if (_sum == 1 and curr_colors[index].get() == 1):
+        if (_sum == 1):
             fill_color = Color(index).name
             if (fill_color not in color_dict.keys()):
                 color_dict[fill_color] = 1
             else:
                 color_dict[fill_color] += 1
         else:
-            #color black by default
+            #color black by default if two or more colors selected or no colors selected
             if (Color.BLACK.name not in color_dict.keys()):
                 color_dict[Color.BLACK.name] = 1
             else:
@@ -89,7 +88,7 @@ def place_vertex(event):
 
         tag = (center[0], center[1], fill_color, 0, 3) #the tag for each circle is its center
 
-        #fill the circle black
+        #fill the circle
         circle = canvas.create_oval(x0, y0, x1, y1, fill = fill_color, tags = tag)
 
         circles.append(circle)
@@ -99,6 +98,13 @@ def place_vertex(event):
         return 0
 
 #helper function to determine if the user clicked on a vertex already drawn on the screen
+#Could use a grid to get better performance than of O(circles) but since the number of circles
+#placed by the user is likely never going to very large, it is not worth it
+
+#you could divide the canvas into rows and columns 10 pixels wide and take the point
+#the user clicked on, calculate event.x//10  and event.y//10 and then hash into the 
+#right bucket and then search through all circles in that bucket
+
 def click_on_vert(click_x, click_y):
     for circle in circles:
         #bounding box for a given vertex
@@ -127,7 +133,8 @@ def draw_edge(event):
 
             last_tags = canvas.gettags(last)
             second_to_last_tags = canvas.gettags(second_to_last)
-
+            
+            #last_tags[2] is the fill color
             if (last_tags[2] == second_to_last_tags[2] and no_edge_bt_same_color_vertices.get() == 1):
                 #CANNOT CREATE AN EDGE BETWEEN TWO VERTICES LABELED THE SAME COLOR WHEN IN color_mode
                 edge_circles.append(second_to_last)
@@ -151,7 +158,7 @@ def color_vertex_func(color):
             circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
             for circle in circles:
                 tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
+                if (ISEQUAL(circle_clicked_on_tags[0], tag[0])) and ISEQUAL(circle_clicked_on_tags[0], tag[0]):
                     canvas.itemconfig(circle, fill = color)
                     new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], color)
                     canvas.itemconfig(circle, tags = new_tag)
@@ -218,13 +225,10 @@ def vertex_or_edge_mode():
         #vertex mode
         window.bind('<Control-Button-1>', place_vertex)
 
-        """
-        if (sum(curr_colors) == 0):
-            #default to black
-            window.bind('<Control-Button-1>', place_vert_func(Color.BLACK))
-        else:
-            window.bind('<Control-Button-1>', place_vert_func(curr_colors.find()))
-        """
+    if (vertex_bool.get() == 0 and edge_bool.get() == 1):
+        #edge mode
+        window.bind('<Control-Button-1>', draw_edge)
+
 
 def color_mode(color):
     if (vertex_bool.get() == 0 and edge_bool.get() == 0): 
@@ -237,7 +241,7 @@ def is_bipartite():
             top = Toplevel(window)
             top.geometry("400x200")
             top.title("NOT BIPARTITE")
-            Label(top, text = "The graph is not bipartite because a bipartite graph \n must have at least 2 vertices according to the textbook").place(x=50, y=80)
+            Label(top, text = "The graph is not bipartite because a bipartite graph \n must have at least 2 vertices").place(x=50, y=80)
         else:
 
             num_degree_0 = 0
@@ -266,32 +270,28 @@ def is_bipartite():
                 start_circle = circles[0] # placeholder 
                 
                 found = 0
+                #find a circle that has not been visited yet and has neighbors; ensures every connected component is looked at
                 for circle in circles:
                     start_circle_tags = canvas.gettags(circle)
                     if (len(graph[circle]) != 0 and int(start_circle_tags[3]) != 1):
                         # if has no neighbors and has not been visited yet
                         start_circle = circle
-                        new_tag = (start_circle_tags[0], start_circle_tags[1], start_circle_tags[2], 1, 0) #start is colored 0 by default
+
+                        #start is colored 0 by default and visited by default
+                        new_tag = (start_circle_tags[0], start_circle_tags[1], start_circle_tags[2], 1, 0) 
                         canvas.itemconfig(start_circle, tag = new_tag)
                         num_visited += 1
                         found = 1
                         break
 
-                if found == 1:
-                    #makes it here
-                    """        
-                    #run BFS at an arbitary vertex
-                    start_circle = circles[0]
-                    start_circle_tags = canvas.gettags(start_circle)
-                    new_tag = (start_circle_tags[0], start_circle_tags[1], start_circle_tags[2], 1, 0) #start is colored 0 by default
-                    canvas.itemconfig(start_circle, tag = new_tag)
-                    """       
+                if found == 1:      
                     layer_arr = [[]]
 
-                    #current_layer = [start_circle]
                     layer_arr[0].append(start_circle)
 
                     layer_counter = 0
+                    
+                    row = []
                     
                     while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
                         for node in layer_arr[layer_counter]:
@@ -311,7 +311,7 @@ def is_bipartite():
                                         canvas.itemconfig(neighbor, tag = new_neighbor_tag)
                                         if (first == 0):
                                             layer_arr.append([])
-                                            first == 1
+                                            first = 1
                                         layer_arr[layer_counter+1].append(neighbor)
                                     else:
                                         if (neighbor_color == current_color):
@@ -434,7 +434,7 @@ def draw_bipartite():
             #"""
 
 def ISEQUAL(x, y):
-    if (abs(float(x)-float(y)) < .000001):
+    if (abs(float(x)-float(y)) < .001):
         return 1
     else:
         return 0
