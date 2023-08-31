@@ -373,7 +373,6 @@ def draw_bipartite():
                     color_dict["red"] += 1
                     num_degree_0 += 1
 
-            #"""
             #run a BFS at each connected component
             num_visited = 0
 
@@ -395,20 +394,17 @@ def draw_bipartite():
 
                 if found == 1:
 
-                    layer_arr = [[]]
-
-                    #current_layer = [start_circle]
-                    layer_arr[0].append(start_circle)
-
+                    row = [start_circle]
                     layer_counter = 0
 
-                    while layer_counter < len(layer_arr) and len(layer_arr[layer_counter]) != 0:
-                        for node in layer_arr[layer_counter]:
-                            
-                            #this version of BFS is used just for 2-coloring, 
-                            # so it does not have checks because the check for the graph being 
-                            # bipartite was done at the beginning of draw_bipartite()
-                            first = 0
+                    #this version of BFS is used just for 2-coloring, 
+                    # so it does not check for the graph being bipartite
+                    # because that was done at the beginning of draw_bipartite()
+
+                    while len(row) != 0:
+                        new_row = []
+
+                        for node in row:
                             if (len(graph[node]) != 0):
                                 for neighbor in graph[node]:
                                     neighbor_tags = canvas.gettags(neighbor)
@@ -416,22 +412,25 @@ def draw_bipartite():
 
                                     if (neighbor_visited == 0): 
                                         num_visited += 1
+                                        new_color  = ""
                                         if layer_counter % 2 == 0:
                                             new_color = "blue"
                                             color_dict["blue"] += 1
                                         else:
                                             new_color = "red"
                                             color_dict["red"] += 1
-
+                                        
+                                        #blue is 0
                                         new_neighbor_tag = (neighbor_tags[0], neighbor_tags[1], new_color, 1, (layer_counter+1)%2)
                                         canvas.itemconfig(neighbor, fill = new_color, tag = new_neighbor_tag)
-                                        if (first == 0):
-                                            layer_arr.append([])
-                                            first == 1
-                                        layer_arr[layer_counter+1].append(neighbor)
+
+                                        new_row.append(neighbor)
+
+                                row = new_row
                         
                         layer_counter += 1
-            #"""
+    
+    return
 
 def ISEQUAL(x, y):
     if (abs(float(x)-float(y)) < .001):
@@ -442,7 +441,11 @@ def ISEQUAL(x, y):
 def del_vert(event):
     if (delete_vertex_bool):
             circ = click_on_vert(event.x, event.y)
+
             if (circ != 0):
+                #if the user clicked on a circle remove this circle from
+                # all of its neighbors' neighbors list
+
                 for circle in circles: 
                     if circ in graph[circle]:
                         graph[circle].remove(circ)
@@ -462,13 +465,11 @@ def del_vert(event):
                 
                 for line in lines_to_remove:
                     line_tag = canvas.gettags(line)
-                    if (float(circ_tags[0]) == float(line_tag[0]) and float(circ_tags[1]) == float(line_tag[1])) or (float(circ_tags[0]) == float(line_tag[2]) and float(circ_tags[1]) == float(line_tag[3])):
-                        lines.remove(line)
-                        canvas.delete(line)
+                    canvas.delete(line)
+                    lines.remove(line)
 
                 canvas.delete(circ)
                 circles.remove(circ)
-
 
 def delete_vertex():
     if (delete_vertex_bool):
