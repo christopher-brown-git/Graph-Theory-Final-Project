@@ -51,8 +51,6 @@ graph = {}
 
 color_dict = {} # a dicionary used to keep track of colors used
 
-
-
 def place_vertex(event):
     if (vertex_bool.get() == 1 and edge_bool.get() == 0):
 
@@ -74,6 +72,7 @@ def place_vertex(event):
             else:
                 color_dict[fill_color] += 1
         else:
+            #color black by default
             if (Color.BLACK.name not in color_dict.keys()):
                 color_dict[Color.BLACK.name] = 1
             else:
@@ -177,40 +176,11 @@ def count_colors():
         
         total =  "The number of colors used is: " + str(num_colors)
 
-        if "red" not in color_dict:
-            total += "\n There are 0 red vertices"
-        else:
-            total += "\n There are " + str(color_dict["red"])+ " red vertices"
-        
-        if "blue" not in color_dict:
-            total += "\n There are 0 blue vertices"
-        else:
-            total += "\n There are " + str(color_dict["blue"])+ " blue vertices"
-        
-        if "green" not in color_dict:
-            total += "\n There are 0 green vertices"
-        else:
-            total += "\n There are " + str(color_dict["green"])+ " green vertices"
-        
-        if "yellow" not in color_dict:
-            total += "\n There are 0 yellow vertices"
-        else:
-            total += "\n There are " + str(color_dict["yellow"])+ " yellow vertices"
-        
-        if "black" not in color_dict:
-            total += "\n There are 0 black vertices"
-        else:
-            total += "\n There are " + str(color_dict["black"])+ " black vertices"
-        
-        if "purple" not in color_dict:
-            total += "\n There are 0 purple vertices"
-        else:
-            total += "\n There are " + str(color_dict["purple"])+ " purple vertices"
-
-        if "pink" not in color_dict:
-            total += "\n There are 0 pink vertices"
-        else:
-            total += "\n There are " + str(color_dict["pink"])+ " pink vertices"
+        for color in Color:
+            if color.name not in color_dict:
+                total += "\n There are 0 " + color.name + " vertices"
+            else:
+                total += "\n There are " + str(color_dict[color.name]) + " " +  color.name + " vertices"
         
         top1 = Toplevel(window)
         top1.geometry("300x200")
