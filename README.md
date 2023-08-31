@@ -1,4 +1,18 @@
-# graphTheoryProject
+# Graph Theory Final Project
+**My executable allows the user to do the following:**
+
+* Place vertices of a given color on the screen. The possible colors are pink, purple, black, yellow, green, blue, and red
+* Change the color of vertices on the screen
+* Create edges between vertices 
+* Prevent the creation of edges between vertices of the same color. 
+* Check if the coloring of the graph is valid (no two adjacent vertices have the same color)
+* Determine with 1-click if the graph drawn is bipartite 
+* If the graph is bipartite, draw a 2-coloring with 1 click
+* Get the number of vertices of each color that are on the screen at a given moment
+* Delete a vertex and all edges incident to it
+
+My interface uses an adjacency list representation of a graph. It implements it with a dictionary. 
+
 **Set-up:**
 
 I installed Python3 and Tkinter using this website, which uses homebrew: https://www.pythonguis.com/installation/install-tkinter-mac/ 
@@ -20,21 +34,6 @@ Open up a new terminal window and navigate to that directory. If you downloaded 
 * `cd ~/Desktop/graphTheoryProject`
 
 To run the executable, type `python3 organized_mini.py`
-
-
-**My executable allows the user to do the following:**
-
-* Place vertices of a given color on the screen. The possible colors are pink, purple, black, yellow, green, blue, and red
-* Change the color of vertices on the screen
-* Create edges between vertices 
-* Prevent the creation of edges between vertices of the same color. 
-* Check if the coloring of the graph is valid (no two adjacent vertices have the same color)
-* Determine with 1-click if the graph drawn is bipartite 
-* If the graph is bipartite, draw a 2-coloring with 1 click
-* Get the number of vertices of each color that are on the screen at a given moment
-* Delete a vertex and all edges incident to it
-
-My interface uses an adjacency list representation of a graph. It implements this with a dictionary. 
 
 <img width="611" alt="graph_theory_project_screenshot" src="https://github.com/cb123450/graphTheoryProject/assets/91232059/783f75ba-15dc-4deb-930c-ddb781e6bd14">
 
