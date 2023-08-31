@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter.messagebox import showinfo
 from tkinter import Canvas
 from tkinter import *
+from enum import Enum;
 
 #create window
 window = tk.Tk()
@@ -30,6 +31,20 @@ circles = []
 edge_circles = []
 lines = []
 
+#Enum used for determined which colors the user has checked
+class Color(Enum):
+    RED = 0
+    YELLOW = 1
+    BLUE = 2
+    GREEN = 3
+    PURPLE = 4
+    PINK = 5
+    BLACK = 6
+
+Color = Enum('Color', ['RED', 'YELLOW', 'BLUE', 'GREEN', 'PURPLE', 'PINK', 'BLACK'])
+
+curr_colors = [0]*len(Color)
+
 graph = {} 
 # represent the graph as a dictionary where the vertices are keys and the value of each vertex is its adjacency list
 # vertices are circle objects (tags included
@@ -40,8 +55,8 @@ graph = {}
 
 color_dict = {} # a dicionary used to keep track of colors used
 
-def place_vertex(event):
 
+def place_vertex(event):
     if (vertex_bool.get() == 1 and edge_bool.get() == 0):
         fill_color = "black" # placeholder
 
@@ -141,7 +156,6 @@ def click_on_vert(click_x, click_y):
     #if vertex not found, no vertex was clicked on so return 0         
     return 0
     
-
 def draw_edge(event):  
     if (vertex_bool.get() == 0 and edge_bool.get() == 1):
         circle_clicked_on = click_on_vert(event.x, event.y)
@@ -169,166 +183,30 @@ def draw_edge(event):
                 line = canvas.create_line(last_tags[0], last_tags[1], second_to_last_tags[0], second_to_last_tags[1], tags = tag)
                 lines.append(line)
 
-#CHANGE THE COLORS OF CIRCLES
-def color_vertex_red(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 1 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y) #use circle objects
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "red")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "red")
-                    canvas.itemconfig(circle, tags = new_tag)
+#Higher-order function that returns a function to draw the circle of the given color where the user clicked
+def color_vertex_func(color):
 
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
+    def color_vertex(event):
+        if (vertex_bool.get() == 0 and edge_bool.get() == 0 and sum(curr_colors) == 1 and curr_colors[Color.color] == 1):
+            circle_clicked_on = click_on_vert(event.x, event.y) #use circle objects
+            if (circle_clicked_on != 0):
+                circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
+                for circle in circles:
+                    tag = canvas.gettags(circle)
+                    if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
+                        canvas.itemconfig(circle, fill = color)
+                        new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], color)
+                        canvas.itemconfig(circle, tags = new_tag)
 
-                    if ("red" not in color_dict):
-                        color_dict["red"] = 1
-                    else:
-                        color_dict["red"] += 1
+                        if (tag[2] in color_dict):
+                            color_dict[tag[2]] -= 1
 
-def color_vertex_blue(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 1 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "blue")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "blue")
-                    canvas.itemconfig(circle, tags = new_tag)
+                        if (color not in color_dict):
+                            color_dict[color] = 1
+                        else:
+                            color_dict[color] += 1
 
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("blue" not in color_dict):
-                        color_dict["blue"] = 1
-                    else:
-                        color_dict["blue"] += 1
-
-def color_vertex_green(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 1 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "green")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "green")
-                    canvas.itemconfig(circle, tags = new_tag)
-
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("green" not in color_dict):
-                        color_dict["green"] = 1
-                    else:
-                        color_dict["green"] += 1
-
-def color_vertex_yellow(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 1 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "yellow")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "yellow")
-                    canvas.itemconfig(circle, tags = new_tag)
-
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("yellow" not in color_dict):
-                        color_dict["yellow"] = 1
-                    else:
-                        color_dict["yellow"] += 1
-
-def color_vertex_black(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 1 and purple_bool.get() == 0 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "black")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "black")
-                    canvas.itemconfig(circle, tags = new_tag)
-
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("black" not in color_dict):
-                        color_dict["black"] = 1
-                    else:
-                        color_dict["black"] += 1
-
-def color_vertex_purple(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 1 and pink_bool.get() == 0):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "purple")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "purple")
-                    canvas.itemconfig(circle, tags = new_tag)
-
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("purple" not in color_dict):
-                        color_dict["purple"] = 1
-                    else:
-                        color_dict["purple"] += 1
-
-def color_vertex_pink(event):
-    if (vertex_bool.get() == 0 and edge_bool.get() == 0 and blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 1):
-        circle_clicked_on = click_on_vert(event.x, event.y)
-        if (circle_clicked_on != 0):
-            circle_clicked_on_tags = canvas.gettags(circle_clicked_on)
-            for circle in circles:
-                tag = canvas.gettags(circle)
-                if ((abs(float(circle_clicked_on_tags[0]) - float(tag[0]))) < .0001 and (abs(float(circle_clicked_on_tags[1]) - float(tag[1]))) < .0001):
-                    canvas.itemconfig(circle, fill = "pink")
-                    new_tag = (circle_clicked_on_tags[0], circle_clicked_on_tags[1], "pink")
-                    canvas.itemconfig(circle, tags = new_tag)
-
-                    if (tag[2] in color_dict):
-                        color_dict[tag[2]] -= 1
-
-                    if ("pink" not in color_dict):
-                        color_dict["pink"] = 1
-                    else:
-                        color_dict["pink"] += 1
-
-#variables
-vertex_bool = tk.IntVar()
-edge_bool = tk.IntVar()
-no_edge_bt_same_color_vertices = tk.IntVar() #when on cannot create an edge between vertices colored the same color
-
-blue_bool = tk.IntVar()
-red_bool = tk.IntVar()
-green_bool = tk.IntVar()
-yellow_bool = tk.IntVar()
-black_bool = tk.IntVar()
-purple_bool = tk.IntVar()
-pink_bool = tk.IntVar()
-
-check_coloring_bool = tk.IntVar()
-count_colors_bool = tk.IntVar()
-is_bipartite_bool = tk.IntVar()
-draw_bipartite_bool = tk.IntVar()
-delete_vertex_bool = tk.IntVar()
-delete_edge_bool = tk.IntVar()
+    return color_vertex
 
 def count_colors():
     if (count_colors_bool.get() == 1):
@@ -380,6 +258,7 @@ def count_colors():
         top1.title("Color Breakdown")
         Label(top1, text = total).place(x=50, y=20)
 
+
 def check_coloring():
     if (check_coloring_bool.get() == 1):
         find = False
@@ -414,35 +293,11 @@ def place_vertex_or_edge():
         #edge mode
         window.bind('<Control-Button-1>', draw_edge)
 
-def color_mode():
+def color_mode(color):
     if (vertex_bool.get() == 0 and edge_bool.get() == 0): 
-        if (blue_bool.get() == 0 and red_bool.get() == 1 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-            #color red
-            window.bind('<Button-1>', color_vertex_red)
+        if (sum(curr_colors) == 1 and curr_colors[color] == 1):
+            window.bind('<Button-1>', color_vertex_func(color))
 
-        if (blue_bool.get() == 1 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-            #color blue
-            window.bind('<Button-1>', color_vertex_blue)
-
-        if (blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 1 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-            #color green
-            window.bind('<Button-1>', color_vertex_green)
-
-        if (blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 1 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 0):
-            #color yellow
-            window.bind('<Button-1>', color_vertex_yellow)
-        
-        if (blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 1 and purple_bool.get() == 0 and pink_bool.get() == 0):
-            #color black
-            window.bind('<Button-1>', color_vertex_black)
-
-        if (blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 1 and pink_bool.get() == 0):
-            #color purple
-            window.bind('<Button-1>', color_vertex_purple)
-            
-        if (blue_bool.get() == 0 and red_bool.get() == 0 and green_bool.get() == 0 and yellow_bool.get() == 0 and black_bool.get() == 0 and purple_bool.get() == 0 and pink_bool.get() == 1):
-            #color pink
-            window.bind('<Button-1>', color_vertex_pink)
         
 def is_bipartite():
     if (is_bipartite_bool):
@@ -687,51 +542,67 @@ def delete_vertex():
     if (delete_vertex_bool):
         window.bind('<Control-Button-1>', del_vert)
 
-
+#Auxiliary Buttons
+vertex_bool = tk.IntVar()
 vertexCheckButton = Checkbutton(frame, text='VERTEX mode: hold control (on mac) and left click to place a vertex. \nIf a color is also checked when doing this, a vertex of the given color will be placed', command=place_vertex_or_edge, variable=vertex_bool)
 vertexCheckButton.pack(side = BOTTOM)
 
+edge_bool = tk.IntVar()
 edgeCheckButton = Checkbutton(frame, text='EDGE mode: hold control (on mac) and left click on two vertices to place an edge between them', command=place_vertex_or_edge, variable=edge_bool)
 edgeCheckButton.pack(side = BOTTOM)
 
+no_edge_bt_same_color_vertices = tk.IntVar() #when on cannot create an edge between vertices colored the same color
 colorCheckButton = Checkbutton(frame, text='Turn on to not allow edges between vertices that are the same color', command=color_mode, variable=no_edge_bt_same_color_vertices)
 colorCheckButton.pack(side = BOTTOM)
 
-redCheckbutton = Checkbutton(frame, text='RED: left click a vertex to color it red', command=color_mode, variable=red_bool, fg = "red")
-redCheckbutton.pack(side = BOTTOM)
-
-blueCheckbutton = Checkbutton(frame, text='BLUE: left click a vertex to color it blue', command=color_mode, variable=blue_bool, fg = "blue")
-blueCheckbutton.pack(side = BOTTOM)
-
-greenCheckbutton = Checkbutton(frame, text='GREEN: left click a vertex to color it green', command=color_mode, variable=green_bool, fg = "green")
-greenCheckbutton.pack(side = BOTTOM)
-
-yellowCheckbutton = Checkbutton(frame, text='YELLOW: left click a vertex to color it yellow', command=color_mode, variable=yellow_bool, fg = "yellow")
-yellowCheckbutton.pack(side = BOTTOM)
-
-blackCheckbutton = Checkbutton(frame, text='BLACK: left click a vertex to color it black', command=color_mode, variable=black_bool, fg = "black")
-blackCheckbutton.pack(side = BOTTOM)
-
-purpleCheckbutton = Checkbutton(frame, text='PURPLE: left click a vertex to color it purple', command=color_mode, variable=purple_bool, fg = "purple")
-purpleCheckbutton.pack(side = BOTTOM)
-
-pinkCheckbutton = Checkbutton(frame, text='PINK: left click a vertex to color it pink', command=color_mode, variable=pink_bool, fg = "pink")
-pinkCheckbutton.pack(side = BOTTOM)
-
+check_coloring_bool = tk.IntVar()
 check_vertex_coloring_button = Checkbutton(frame, text='Click to check if the VERTEX COLORING is VALID', command=check_coloring, variable=check_coloring_bool)
 check_vertex_coloring_button.pack(side = BOTTOM)
 
+count_colors_bool = tk.IntVar()
 count_colors_button = Checkbutton(frame, text='Click to get a numerical breakdown of the colors used in the graph', command=count_colors, variable=count_colors_bool)
 count_colors_button.pack(side = BOTTOM)
 
+is_bipartite_bool = tk.IntVar()
 is_bipartite_button = Checkbutton(frame, text='Click to check if the graph is BIPARTITE', command=is_bipartite, variable=is_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
 
+draw_bipartite_bool = tk.IntVar()
 is_bipartite_button = Checkbutton(frame, text='Click to see the BIPARTITE coloring for the BIPARTITE graph drawn', command=draw_bipartite, variable=draw_bipartite_bool)
 is_bipartite_button.pack(side = BOTTOM)
 
+delete_vertex_bool = tk.IntVar()
 delete_vertex_button = Checkbutton(frame, text='Click to be able to DELETE a vertex and the edges incident to it \n by holding control and left-clicking on the vertices', command=delete_vertex, variable=delete_vertex_bool)
 delete_vertex_button.pack(side = BOTTOM)
+
+#Coloring Buttons
+red_bool = tk.IntVar()
+redCheckbutton = Checkbutton(frame, text='RED: left click a vertex to color it red', command=color_mode(Color.RED), variable=red_bool, fg = "red")
+redCheckbutton.pack(side = BOTTOM)
+
+yellow_bool = tk.IntVar()
+yellowCheckbutton = Checkbutton(frame, text='YELLOW: left click a vertex to color it yellow', command=color_mode(Color.YELLOW), variable=yellow_bool, fg = "yellow")
+yellowCheckbutton.pack(side = BOTTOM)
+
+blue_bool = tk.IntVar()
+blueCheckbutton = Checkbutton(frame, text='BLUE: left click a vertex to color it blue', command=color_mode(Color.BLUE), variable=blue_bool, fg = "blue")
+blueCheckbutton.pack(side = BOTTOM)
+
+green_bool = tk.IntVar()
+greenCheckbutton = Checkbutton(frame, text='GREEN: left click a vertex to color it green', command=color_mode(Color.GREEN), variable=green_bool, fg = "green")
+greenCheckbutton.pack(side = BOTTOM)
+
+purple_bool = tk.IntVar()
+purpleCheckbutton = Checkbutton(frame, text='PURPLE: left click a vertex to color it purple', command=color_mode(Color.PURPLE), variable=purple_bool, fg = "purple")
+purpleCheckbutton.pack(side = BOTTOM)
+
+pink_bool = tk.IntVar()
+pinkCheckbutton = Checkbutton(frame, text='PINK: left click a vertex to color it pink', command=color_mode(Color.PINK), variable=pink_bool, fg = "pink")
+pinkCheckbutton.pack(side = BOTTOM)
+
+black_bool = tk.IntVar()
+blackCheckbutton = Checkbutton(frame, text='BLACK: left click a vertex to color it black', command=color_mode(Color.BLACK), variable=black_bool, fg = "black")
+blackCheckbutton.pack(side = BOTTOM)
 
 window.bind(place_vertex_or_edge)
 
