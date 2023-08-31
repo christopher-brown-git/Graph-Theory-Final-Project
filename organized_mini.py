@@ -41,8 +41,6 @@ class Color(Enum):
     PINK = 5
     BLACK = 6
 
-Color = Enum('Color', ['RED', 'YELLOW', 'BLUE', 'GREEN', 'PURPLE', 'PINK', 'BLACK'], start = 0)
-
 graph = {} 
 # represent the graph as a dictionary where the vertices are keys and the value of each vertex is its adjacency list
 # vertices are circle objects (tags included
