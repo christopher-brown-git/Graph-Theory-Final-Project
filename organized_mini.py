@@ -340,7 +340,7 @@ def is_bipartite():
                 top.title("BIPARTITE")
                 Label(top, text = "The graph is bipartite because BFS can \n be used to assign colors to its vertices").place(x=50, y=80)
         
-def draw_bipartite():
+def draw_bipartite(): 
     if (draw_bipartite_bool):
         if (is_bipartite() != -1):
             for circle in circles:
