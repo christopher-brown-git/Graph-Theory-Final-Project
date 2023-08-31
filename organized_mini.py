@@ -10,19 +10,15 @@ frame = Frame(window)
 frame.pack()
 window.title("Mini-project")
 
-#window dimensions
-window.configure(width=1500, height=800)
+# set window width and height
+windowWidth = 1500
+windowHeight = 800
+
+window.configure(width=windowWidth, height=windowHeight)
 window.configure(bg='lightgray')
 
-# move window to the center of the screen
-windowWidth = window.winfo_reqwidth()
-windowHeight = window.winfo_reqheight()
-posRight = int(window.winfo_screenwidth() / 2 - windowWidth / 2)
-posDown = int(window.winfo_screenheight() / 2 - windowHeight / 2)
-window.geometry("+{}+{}".format(posRight, posDown))
-
-#create canvas to draw and bind it to the window
-canvas = Canvas(window, height=windowHeight-100, width=windowWidth-100)
+#create canvas to draw and bind it to the window; dimensions of canvas are equal to dimensions of window
+canvas = Canvas(window, height=windowHeight, width=windowWidth-500)
 canvas.pack()
 
 global x, y
@@ -40,6 +36,7 @@ graph = {}
 # each circle has a tag that stores its center as a 5-tuple (center.x, center.y, color, visited_flag, blue or red)
 # 0 = not visisted
 # tag[4] is 3 by default
+# blue or red is used for finding bipartite colorings
 
 color_dict = {} # a dicionary used to keep track of colors used
 
